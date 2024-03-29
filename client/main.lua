@@ -1,51 +1,19 @@
-ESX = exports['es_extended']:getSharedObject() -- ESX-Bibliothek
+local ESX = exports['es_extended']:getSharedObject()
 
-local screenWidth, screenHeight = GetActiveScreenResolution()
-
-function DrawMoney()
-    local money = ESX.GetPlayerData().money
-    
-    local formattedMoney = "$: " .. money
-    
-    SetTextFont(4)
-    SetTextProportional(0)
-    SetTextScale(0.45, 0.45)
-    SetTextColour(185, 185, 185, 255)
-    SetTextDropshadow(0, 0, 0, 0, 255)
-    SetTextEdge(1, 0, 0, 0, 255)
-    SetTextDropShadow()
-    SetTextOutline()
-    SetTextEntry("STRING")
-    AddTextComponentString(formattedMoney)
-    
-    DrawText(screenWidth - 0.03, 0.03)
-end
-
-function DrawBankMoney()
-    local bankMoney = ESX.GetPlayerData().bank
-    
-    local formattedBankMoney = "🏦: " .. bankMoney
-    
-    SetTextFont(4)
-    SetTextProportional(0)
-    SetTextScale(0.45, 0.45)
-    SetTextColour(185, 185, 185, 255)
-    SetTextDropshadow(0, 0, 0, 0, 255)
-    SetTextEdge(1, 0, 0, 0, 255)
-    SetTextDropShadow()
-    SetTextOutline()
-    SetTextEntry("STRING")
-    AddTextComponentString(formattedBankMoney)
-    
-    DrawText(screenWidth - 0.03, 0.07)
-end
+RegisterNetEvent('esx:setMoneyDisplay')
+AddEventHandler('esx:setMoneyDisplay', function(money, bank)
+    SendNUIMessage({
+        type = 'updateMoneyDisplay',
+        money = money,
+        bank = bank
+    })
+end)
 
 Citizen.CreateThread(function()
     while true do
-        DrawMoney()
-        
-        DrawBankMoney()
-        
-        Citizen.Wait(0)
+        local playerMoney = ESX.GetPlayerData().money
+        local playerBank = ESX.GetPlayerData().bank
+        TriggerEvent('esx:setMoneyDisplay', playerMoney, playerBank)
+        Citizen.Wait(1000) 
     end
 end)
